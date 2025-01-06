@@ -23,7 +23,8 @@ const Feature = () => {
                             dolorem dolor facere rem iure id error sapiente. Aspernatur
                             voluptate impedit illo! Reiciendis. Lorem ipsum dolor sit,
                             amet consectetur adipisicing elit. Eum, id?</p>
-                        <button className='uppercase btn btn-outline border-0 text-gray-200 border-orange-400 border-b-4'>Order Now</button>
+                        <button className='uppercase btn btn-outline border-0 text-gray-200
+                         border-orange-400 border-b-4'>Order Now</button>
                     </div>
                 </div>
             </div>
