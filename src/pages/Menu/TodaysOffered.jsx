@@ -1,18 +1,12 @@
-import React, { useEffect, useState } from 'react'
+
 import SectionTitle from '../../Components/SectionTitle'
 import MenuItem from '../../shared/MenuItem'
+import useMenu from '../../hooks/useMenu'
 
 const TodaysOffered = () => {
-   const [items,setItems] = useState([])
+   const [menu] = useMenu()
+   const offeredItems = menu.filter(item => item.category === 'offered')
 
-   useEffect(()=>{
-      fetch('menu.json')
-      .then(res => res.json())
-      .then(data =>{
-         const offeredItems = data.filter(item => item.category === 'offered')
-         setItems(offeredItems)
-      })
-   },[])
   return (
     <div>
         <SectionTitle
@@ -20,7 +14,7 @@ const TodaysOffered = () => {
          heading={"Today's Offer"}
         />
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6 my-10'>
-           {items && items.map(item => <MenuItem key={item._id} item={item}></MenuItem>)}
+           {offeredItems && offeredItems.map(item => <MenuItem key={item._id} item={item}></MenuItem>)}
         </div>
         <div className='flex flex-col justify-center  items-center mb-8'>
         <button className='uppercase w-auto btn btn-outline border-0 text-gray-500
