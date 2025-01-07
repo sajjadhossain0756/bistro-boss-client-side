@@ -1,11 +1,12 @@
 import React from 'react'
 
-const Cover = ({img,title,height,detail}) => {
+const Cover = ({img,title,detail,height}) => {
     return (
         <div
-            className={`hero h-[${height}]`}
+            className={`hero `}
             style={{
                 backgroundImage: `url('${img}')`,
+                height: height
             }}>
             <div className="hero-overlay bg-opacity-60"></div>
             <div className="hero-content text-neutral-content text-center">

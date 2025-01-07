@@ -2,6 +2,7 @@ import React from 'react'
 import { Helmet } from 'react-helmet-async'
 import Cover from '../../shared/Cover'
 import menuImg from '../../assets/menu/banner3.jpg'
+import TodaysOffered from './TodaysOffered'
 
 const Menu = () => {
     return (
@@ -9,7 +10,9 @@ const Menu = () => {
             <Helmet>
                 <title>Bistro Boss | Menu</title>
             </Helmet>
-            <Cover img={menuImg} title='Our Menu' detail='would you like to try a dish from our popular items menu' height='500px'></Cover>
+            <Cover img={menuImg} title='Our Menu' 
+            detail='would you like to try a dish from our popular items menu' height='500px'></Cover>
+            <TodaysOffered></TodaysOffered>
         </div>
     )
 }
