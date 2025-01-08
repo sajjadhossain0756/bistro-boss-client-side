@@ -5,9 +5,14 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import useMenu from '../../hooks/useMenu';
 import OrderTab from './OrderTab';
+import { useParams } from 'react-router-dom';
 
 const OrderFood = () => {
-    const [tabIndex, setTabIndex] = useState(0)
+    const categoryItems = ['salads','pizza','soup','dessert','drinks'];
+    const {category} = useParams()
+    const initialIndex = categoryItems.indexOf(category)
+    console.log(initialIndex)
+    const [tabIndex, setTabIndex] = useState(initialIndex)
     const [menu] = useMenu()
     const dessertItems = menu.filter(item => item.category === 'dessert')
     const pizzaItems = menu.filter(item => item.category === 'pizza')
@@ -26,7 +31,7 @@ const OrderFood = () => {
                 <Tabs defaultIndex={tabIndex} onSelect={(index) => setTabIndex(index)}>
                     <div className='flex items-center justify-center'>
                         <TabList>
-                            <Tab>Salad</Tab>
+                            <Tab>Salads</Tab>
                             <Tab>Pizza</Tab>
                             <Tab>Soup</Tab>
                             <Tab>Dessert</Tab>
