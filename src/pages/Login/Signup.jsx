@@ -1,79 +1,90 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
-import loginImg from '../../assets/others/authentication1.png'
+import React, { useContext, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import loginImg from '../../assets/others/authentication.gif'
 import { AuthContext } from '../../provider/AuthProvider';
+import { useForm } from "react-hook-form"
 import { Helmet } from 'react-helmet-async';
-import useAxiosSecure from '../../hooks/useAxiosSecure';
+import Swal from 'sweetalert2'
+import useAxiosPublic from '../../hooks/useAxiosPublic';
 
-const Login = () => {
-    const { signInUser, signInWithGoogle } = useContext(AuthContext)
-    const [disabled, setDisabled] = useState(true)
 
+const Signup = () => {
+    const { register, handleSubmit, formState: { errors } } = useForm()
+    const { createUser, updateUserProfile } = useContext(AuthContext)
     const navigate = useNavigate()
-    const location = useLocation()
-    const axiosSecure = useAxiosSecure()
-    const from = location?.state?.from?.pathname || '/'
+    const axiosPublic = useAxiosPublic()
 
-    useEffect(() => {
-        loadCaptchaEnginge(6);
-    }, [])
+    const onSubmit = (data) => {
+        console.log(data)
+        const { email, password, name, photo } = data;
+        const userInfo = {
+            name,
+            email
+        }
+        createUser(email, password)
+            .then(data => {
+                console.log(data.user)
+                updateUserProfile(name, photo)
+                    .then(() => {
+                        alert('user Updated')
+                    })
+                    .catch(err => {
+                        console.log(err.message)
+                    })
+                axiosPublic.post(`/users`, userInfo)
+                    .then(res => {
+                        if (res.data.insertedId) {
+                            Swal.fire({
+                                position: "top-end",
+                                icon: "success",
+                                title: "Sucessfully Created",
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
 
-    const handleSignIn = (e) => {
-        e.preventDefault()
-        const form = e.target
-        const email = form.email.value
-        const password = form.password.value
-        console.log({ email, password })
-
-        signInUser(email, password)
-            .then(() => {
-                alert('sign in successfull')
-                navigate(from)
+                            navigate('/')
+                        }
+                    })
             })
             .catch(err => {
-                alert(err.message)
+                console.log(err.message)
             })
-    }
-    // signInWithGoogle
-    const handleGoogleSignIn = () => {
-        signInWithGoogle()
-            .then((result) => {
-                console.log(result.user)
-                const userInfo = {
-                    name: result.user?.displayName,
-                    email: result.user?.email
-                }
-                axiosSecure.post(`/users`,userInfo)
-                .then(res =>{
-                    console.log(res.data)
-                    alert('sign in successfull')
-                    navigate('/')
-                })
-                .catch(err =>{
-                    console.log(err.message)
-                })
-            })
-            .catch(err => {
-                alert(err.message)
-            })
-    }
-    const handleValidateCaptcha = (e) => {
-        const user_captcha_value = e.target.value
-        if (validateCaptcha(user_captcha_value)) {
-            alert('Captcha Matched');
-            setDisabled(false)
-        }
-
-        else {
-            setDisabled(true)
-        }
     }
 
+    // const handleSignUp = (e) => {
+    //     e.preventDefault()
+    //     const form = e.target
+    //     const email = form.email.value
+    //     const password = form.password.value
+    //     console.log({ email, password })
+
+    //     createUser(email,password)
+    //     .then(data =>{
+    //         console.log(data.user)
+    //         alert('sucessfully Login')
+    //     })
+    //     .catch(err =>{
+    //         console.log(err.message)
+    //     })
+
+    // }
+
+
+    // const handleValidateCaptcha = () => {
+    //     const user_captcha_value = captchaRef.current.value
+    //     if (validateCaptcha(user_captcha_value)) {
+    //         alert('Captcha Matched');
+    //         setDisabled(false)
+    //     }
+
+    //     else {
+    //         setDisabled(true)
+    //     }
+    // }
     return (
         <div>
             <Helmet>
-                <title>Bistro Boss | Login</title>
+                <title>Bistro Boss | Signup</title>
             </Helmet>
             <Link to={`/`}><button className='btn btn-outline my-6'>Back To Home</button></Link>
             <div className='flex items-center w-full max-w-sm mx-auto overflow-hidden lg:flex-row-reverse
@@ -115,7 +126,7 @@ const Login = () => {
                             </svg>
                         </div>
 
-                        <span onClick={handleGoogleSignIn} className='w-5/6 px-4 py-3 font-bold text-center'>
+                        <span className='w-5/6 px-4 py-3 font-bold text-center'>
                             Sign in with Google
                         </span>
                     </div>
@@ -129,7 +140,41 @@ const Login = () => {
 
                         <span className='w-1/5 border-b dark:border-gray-400 lg:w-1/4'></span>
                     </div>
-                    <form onSubmit={handleSignIn}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className='mt-4'>
+                            <label
+                                className='block mb-2 text-sm font-medium dark:text-white text-gray-600 '
+                                htmlFor='LoggingName'
+                            >
+                                Name
+                            </label>
+                            <input
+                                id='name'
+                                autoComplete='name'
+                                name='name'
+                                {...register("name", { required: true })}
+                                className='block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300'
+                                type='text'
+                            />
+                            {errors.name && <span className='text-red-600'>Name field is required</span>}
+                        </div>
+                        <div className='mt-4'>
+                            <label
+                                className='block mb-2 text-sm font-medium dark:text-white text-gray-600 '
+                                htmlFor='photo'
+                            >
+                                Photo URL
+                            </label>
+                            <input
+                                id='photo'
+                                autoComplete='photo'
+                                name='photo'
+                                {...register("photo", { required: true })}
+                                className='block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300'
+                                type='url'
+                            />
+                            {errors.name && <span className='text-red-600'>Name field is required</span>}
+                        </div>
                         <div className='mt-4'>
                             <label
                                 className='block mb-2 text-sm font-medium dark:text-white text-gray-600 '
@@ -141,6 +186,7 @@ const Login = () => {
                                 id='LoggingEmailAddress'
                                 autoComplete='email'
                                 name='email'
+                                {...register("email", { required: true })}
                                 className='block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300'
                                 type='email'
                             />
@@ -160,11 +206,22 @@ const Login = () => {
                                 id='loggingPassword'
                                 autoComplete='current-password'
                                 name='password'
+                                {...register("password",
+                                    {
+                                        required: true,
+                                        minLength: 6,
+                                        maxLength: 20,
+                                        pattern: /(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9])(?=.*[a-z])/
+                                    })}
                                 className='block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300'
                                 type='password'
                             />
+                            {errors.password?.type === 'minLength' && <p className='text-red-600'>Password must be 6 characters</p>}
+                            {errors.password?.type === 'maxLength' && <p className='text-red-600'>Password must be less than 20 characters</p>}
+                            {errors.password?.type === 'pattern' && <p className='text-red-600'>Password must have one Uppercase,
+                                one lowercase,one number and one special characters</p>}
                         </div>
-                        {/* captcha */}
+                        {/* captcha
                         <div className='mt-4'>
                             <div className='flex justify-between'>
                                 <label
@@ -174,24 +231,22 @@ const Login = () => {
                                     <LoadCanvasTemplate />
                                 </label>
                             </div>
-                           
+
                             <input
-                                id='captcha'
+                                id='loggingPassword'
                                 autoComplete='current-password'
-                                onBlur={handleValidateCaptcha}
-                                name='captcha'
+                                name='password'
+                                ref={captchaRef}
                                 className='block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300'
                                 type='text'
                             />
-                            <input  type="text" className='btn' value='click here for validate' />
-                            {/* <button onClick={} className='btn '>Validate Captcha</button> */}
-                        </div>
+                            <button onClick={handleValidateCaptcha} className='btn '>Validate Captcha</button>
+                        </div> */}
                         <div className='mt-6'>
-                             {/* to do enable captcha */}
                             <input
-                                disabled={false}
+
                                 type='submit'
-                                value="Sign In"
+                                value="Sign Up"
                                 className='btn btn-primary w-full'
                             />
 
@@ -202,10 +257,10 @@ const Login = () => {
                         <span className='w-1/5 border-b  '></span>
 
                         <Link
-                            to='/signup'
+                            to='/login'
                             className='text-xs dark:text-gray-300 text-gray-500 uppercase  hover:underline'
                         >
-                            If You have no Account, Sign up
+                            If You have an Account, Sign In
                         </Link>
 
                         <span className='w-1/5 border-b '></span>
@@ -216,4 +271,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default Signup

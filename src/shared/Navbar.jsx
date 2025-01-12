@@ -1,12 +1,46 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+import React, { useContext } from 'react'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
+import { AuthContext } from '../provider/AuthProvider'
+import { FaShoppingCart } from 'react-icons/fa'
+import useCart from '../hooks/useCart'
 
 const Navbar = () => {
+    const { user, signOutUser } = useContext(AuthContext)
+    const navigate = useNavigate()
+    const [cart] = useCart()
+
+    console.log(user?.displayName)
+    const handleSignOut = () => {
+        signOutUser()
+            .then(() => {
+                alert('sign out successfull')
+                navigate('/login')
+            })
+            .catch(err => {
+                alert(err.message)
+            })
+    }
+
     const navItem = <>
         <li><NavLink to='/'>Home</NavLink></li>
         <li><NavLink to='/menu'>Our Menu</NavLink></li>
         <li><NavLink to='/order/salad'>Order Food</NavLink></li>
-        <li><NavLink to='/login'>Login</NavLink></li>
+        <li>
+            <Link to='/dashbord/cart'>
+                <button className='btn'>
+                    <FaShoppingCart className='mr-2'></FaShoppingCart>
+                    <div className='badge badge-secondary'>+{cart.length}</div>
+                </button>
+            </Link>
+        </li>
+
+        {user ?
+            <>
+                <li><Link onClick={handleSignOut}>Logout</Link></li>
+            </> :
+            <>
+                <li><NavLink to='/login'>Login</NavLink></li>
+            </>}
     </>
     return (
         <div className=''>
@@ -36,12 +70,14 @@ const Navbar = () => {
                     <a className="font-bold text-xl">Bistro Boss</a>
                 </div>
                 <div className="navbar-center hidden lg:flex">
-                    <ul className="menu menu-horizontal px-1">
+                    <ul className="menu menu-horizontal px-1 items-center">
                         {navItem}
                     </ul>
                 </div>
                 <div className="navbar-end">
-                    <a className="btn">Button</a>
+
+                    <a className="btn text-black">{user ? user?.displayName : 'dispalyName'}</a>
+                    <img src={user && user?.photoURL} alt="" className='h-10 w-10' />
                 </div>
             </div>
         </div>
